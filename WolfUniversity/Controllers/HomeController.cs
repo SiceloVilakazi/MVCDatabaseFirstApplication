@@ -1,21 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WolfUniversity.Models;
+using WolfUniversity.Queries;
 
 namespace WolfUniversity.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IMediator _mediator;
+        public HomeController(ILogger<HomeController> logger,IMediator mediator)
         {
             _logger = logger;
+            _mediator = mediator;
         }
 
-        public IActionResult Index()
+        public async  Task<IActionResult> Index()
         {
-            return View();
+            var coursesQuery = new GetTotalCoursesQuery();
+            var totalCourses = await _mediator.Send(coursesQuery);
+
+            var studentQuery = new GetTotalStudentsQuery();
+            var totalStudents = _mediator.Send(studentQuery);
+
+           DashboardViewModel dashboardViewModel = new DashboardViewModel();
+           dashboardViewModel.TotalCourses = totalCourses;
+           dashboardViewModel.TotalStudents = totalStudents.Result;
+           
+
+            return View(dashboardViewModel);
         }
 
         public IActionResult Privacy()

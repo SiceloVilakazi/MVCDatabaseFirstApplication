@@ -14,6 +14,7 @@ namespace WolfUniversity.Domain
         Task<Tentity> UpdateAsync(Tentity entity);
         Task<bool> DeleteAsync(Tentity entity);
 
+        Task<int> CountAsync();
 
     }
 }

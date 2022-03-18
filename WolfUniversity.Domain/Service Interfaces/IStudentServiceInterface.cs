@@ -10,5 +10,7 @@
         Task<Student> UpdateStudent(Student student);
 
         Task<bool> DeleteStudent(Student student);
+
+        Task<int> CountStudents();
     }
 }

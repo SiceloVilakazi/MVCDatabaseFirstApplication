@@ -39,5 +39,10 @@ namespace WolfUniversity.Domain
         {
          return  await _studentRepository.DeleteAsync(student);
         }
+
+        public async Task<int> CountStudents()
+        {
+            return await _studentRepository.CountAsync();
+        }
     }
 }

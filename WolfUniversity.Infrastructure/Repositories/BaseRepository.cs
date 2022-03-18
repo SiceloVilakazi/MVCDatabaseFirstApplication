@@ -49,5 +49,10 @@ namespace WolfUniversity.Infrastructure
             return entity ;
         }
 
+        public async Task<int> CountAsync()
+        {
+            return await _dbSet.CountAsync();
+        }
+
     }
 }

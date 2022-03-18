@@ -11,5 +11,7 @@ namespace WolfUniversity.Domain
         Task<Course> UpdateCourse(Course course);
 
         Task<bool> DeleteCourse(Course course);
+
+        Task<int> CountCourses();
     }
 }
