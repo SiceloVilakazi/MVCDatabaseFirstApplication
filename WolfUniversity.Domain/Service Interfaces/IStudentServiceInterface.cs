@@ -2,7 +2,7 @@
 {
     public interface IStudentServiceInterface
     {
-       // Task<Student> GetStudentById(int id);
+        Task<Student> GetStudentById(int id);
 
         Task<List<Student>> GetAllStudents();
 

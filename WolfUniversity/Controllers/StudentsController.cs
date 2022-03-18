@@ -1,99 +1,75 @@
-﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using WolfUniversity.Commands;
 using WolfUniversity.Domain;
-using WolfUniversity.Infrastructure;
-using WolfUniversity.Models;
+using WolfUniversity.Queries;
 
 namespace WolfUniversity.Controllers
 {
     public class StudentsController : Controller
     {
-        private readonly WolfUniversityDBContext _context;
-
-        public StudentsController(WolfUniversityDBContext context)
+        private readonly IMediator _mediator;
+        public StudentsController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
-
-        // GET: Students
+        // GET: studentsController
         public async Task<IActionResult> Index()
         {
-            var wolfUniversityDBContext = _context.Students.Include(s => s.Course);
-            return View(await wolfUniversityDBContext.ToListAsync());
+            var query = new GetStudentsQuery();
+            var result = await _mediator.Send(query);
+            return View(result);
         }
 
-        // GET: Students/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: studentsController/Details/5
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var student = await _context.Students
-                .Include(s => s.Course)
-                .FirstOrDefaultAsync(m => m.StudentId == id);
-            if (student == null)
-            {
-                return NotFound();
-            }
-
-            return View(student);
+            var query = new GetStudentByIdQuery(id);
+            var result = await _mediator.Send(query);
+            return View(result);
         }
 
-        // GET: Students/Create
+        // GET: studentsController/Create
         public IActionResult Create()
         {
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "Name");
             return View();
         }
 
-        // POST: Students/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: studentsController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("StudentId,StudentNumber,Name,Surname,Phone,Email,CourseId")] Student student)
+        public async Task<IActionResult> Create([Bind("studentId,studentCode,Name,Nqflevel,Description,studentDuration,IsActive,LastModifiedBy,LastModifiedDate")] Student student)
         {
+            var query = new AddStudentCommand(student);
             if (ModelState.IsValid)
             {
-                _context.Add(student);
-                await _context.SaveChangesAsync();
+                await _mediator.Send(query);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseId", student.Name);
             return View(student);
+
         }
 
-        // GET: Students/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: studentsController/Edit/5
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            var query = new GetStudentByIdQuery((int)id);
+            var student = _mediator.Send(query);
 
-            var student = await _context.Students.FindAsync(id);
             if (student == null)
             {
                 return NotFound();
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseId", student.CourseId);
             return View(student);
         }
 
-        // POST: Students/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: studentsController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StudentId,StudentNumber,Name,Surname,Phone,Email,CourseId")] Student student)
+        public async Task<IActionResult> Edit(int id, [Bind("studentId,studentCode,Name,Nqflevel,Description,studentDuration,IsActive,LastModifiedBy,LastModifiedDate")] Student student)
         {
             if (id != student.StudentId)
             {
@@ -104,59 +80,45 @@ namespace WolfUniversity.Controllers
             {
                 try
                 {
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
+                    var query = new EditStudentCommand(student);
+                    await _mediator.Send(query);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!StudentExists(student.StudentId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    //TODO write an exception
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CourseId"] = new SelectList(_context.Courses, "CourseId", "CourseId", student.CourseId);
             return View(student);
         }
 
-        // GET: Students/Delete/5
+        // GET: studentsController/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) { return NotFound(); }
 
-            var student = await _context.Students
-                .Include(s => s.Course)
-                .FirstOrDefaultAsync(m => m.StudentId == id);
-            if (student == null)
-            {
-                return NotFound();
-            }
+            var query = new GetStudentByIdQuery((int)id);
+            var student = await _mediator.Send(query);
+
+            if (student == null) { return NotFound(); }
 
             return View(student);
         }
 
-        // POST: Students/Delete/5
+
+        // POST: studentsController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var getQuery = new GetStudentByIdQuery(id);
+            var student = await _mediator.Send(getQuery);
 
-        private bool StudentExists(int id)
-        {
-            return _context.Students.Any(e => e.StudentId == id);
+            var DeleteCommand = new RemoveStudentCommand();
+            await _mediator.Send(DeleteCommand);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

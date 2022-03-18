@@ -9,17 +9,15 @@ namespace WolfUniversity.Domain
         {
             _courseRepository = courseRepository;
         }
-        
-        //TODO
 
-        //public async Task<Course> GetCourseById(int id)
-        //{
-        //    var course = await _courseRepository.GetAsync(id);
-        //    return course;
-        //}
+        public async Task<Course> GetCourseById(int id)
+        {
+            var course = await _courseRepository.GetAsync(c => c.CourseId == id);
+            return course;
+        }
         public async Task<List<Course>> GetAllCourses()
         {
-            var courses = await _courseRepository.ListAsync(c=>true);
+            var courses = await _courseRepository.ListAsync();
             return courses;
         }
 

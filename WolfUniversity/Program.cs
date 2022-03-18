@@ -1,13 +1,55 @@
-using MediatR;
+global using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using WolfUniversity.Commands;
+using WolfUniversity.Domain;
 using WolfUniversity.Infrastructure;
 using WolfUniversity.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMediatR(typeof(GetStudentsQueryHandler).Assembly);
+
+#region Get Handlers
+//builder.Services.AddMediatR(typeof(GetStudentsQueryHandler).Assembly);
+//builder.Services.AddMediatR(typeof(GetCoursesQueryHandler).Assembly);
+//builder.Services.AddMediatR(typeof(GetCourseByIdQueryHandler).Assembly);
+//builder.Services.AddMediatR(typeof(GetStudentByIdQueryHandler).Assembly);
+//builder.Services.AddMediatR(typeof(AddCourseCommandHandler).Assembly);
+//builder.Services.AddMediatR(typeof(AddStudentCommandHandler).Assembly);
+//builder.Services.AddMediatR(typeof(EditCourseCommandHandler).Assembly);
+//builder.Services.AddMediatR(typeof(RemoveCourseCommandHandler).Assembly);
+//builder.Services.AddMediatR(typeof(EditStudentCommandHandler).Assembly);
+//builder.Services.AddMediatR(typeof(RemoveStudentCommandHandler).Assembly);
+
+var coursecommandAssembly = typeof(AddCourseCommand).GetTypeInfo().Assembly;
+builder.Services.AddMediatR(coursecommandAssembly);
+
+var commandAssembly = typeof(AddStudentCommand).GetTypeInfo().Assembly;
+builder.Services.AddMediatR(commandAssembly);
+
+
+var queryAssembly = typeof(GetCourseByIdQuery).GetTypeInfo().Assembly;
+builder.Services.AddMediatR(queryAssembly);
+
+#endregion
+
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+//Services
+builder.Services.AddTransient<ICourseServiceInterface, CourseService>();
+builder.Services.AddTransient<IStudentServiceInterface, StudentService>();
+//builder.Services.AddTransient<IEnrollmentServiceInterface, EnrollmentService>();
+//builder.Services.AddTransient<IGradeServiceInterface, GradeService>();
+
+//Repositories
+builder.Services.AddTransient<ICourseRepository, CourseRepository>();
+builder.Services.AddTransient<IStudentRepository, StudentRepository>();
+//builder.Services.AddTransient<IGradeRepository, GradeRepository>();
+//builder.Services.AddTransient<IEnrollmentRepository, EnrollmentRepository>();
+
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+
 
 IConfiguration configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")

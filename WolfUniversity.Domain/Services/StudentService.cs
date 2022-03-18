@@ -10,15 +10,14 @@ namespace WolfUniversity.Domain
             _studentRepository = studentRepository;
         }
 
-        //TODO
-        //public async Task<Student> GetStudentById(int id)
-        //{
-        //    var student = await _studentRepository.GetAsync(s=>true,id);
-        //    return student;
-        //}
+        public async Task<Student> GetStudentById(int id)
+        {
+            var student = await _studentRepository.GetAsync(c=>c.StudentId==id);
+            return student;
+        }
         public async Task<List<Student>> GetAllStudents()
         {
-            var students = await _studentRepository.ListAsync(s=>true);
+            var students = await _studentRepository.ListAsync();
             return students;
         }
 

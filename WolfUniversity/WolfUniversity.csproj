@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WolfUniversity.Commands\WolfUniversity.Commands.csproj" />
     <ProjectReference Include="..\WolfUniversity.Infrastructure\WolfUniversity.Infrastructure.csproj" />
     <ProjectReference Include="..\WolfUniversity.Queries\WolfUniversity.Queries.csproj" />
   </ItemGroup>

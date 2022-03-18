@@ -1,33 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace WolfUniversity.Domain
 {
-    public partial class Course : BaseEntity
+    public partial class Course
     {
         public Course()
         {
-            Students = new HashSet<Student>();
+            Enrollments = new HashSet<Enrollment>();
         }
 
         public int CourseId { get; set; }
-
-        [Display(Name="Course Code")]
         public string? CourseCode { get; set; }
-
-        [Display(Name = "Course Name")]
         public string? Name { get; set; }
-
-        [Display(Name = "NQF Level")]
         public int? Nqflevel { get; set; }
-
-        [Display(Name = "Course Description")]
         public string? Description { get; set; }
-
-        [Display(Name = "Course Description")]
         public string? CourseDuration { get; set; }
+        public bool? IsActive { get; set; }
+        public string? LastModifiedBy { get; set; }
+        public DateTime? LastModifiedDate { get; set; }
 
-        public virtual ICollection<Student> Students { get; set; }
+        public virtual ICollection<Enrollment> Enrollments { get; set; }
     }
 }

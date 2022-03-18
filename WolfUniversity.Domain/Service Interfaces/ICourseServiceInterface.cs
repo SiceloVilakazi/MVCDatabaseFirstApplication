@@ -3,7 +3,7 @@ namespace WolfUniversity.Domain
 {
     public interface ICourseServiceInterface
     {
-       // Task<Course> GetCourseById(int id);
+        Task<Course> GetCourseById(int Id);
         
         Task<List<Course>> GetAllCourses();
 

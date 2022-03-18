@@ -32,19 +32,22 @@ namespace WolfUniversity.Infrastructure
 
         }
 
-        public async Task<List<Tentity>> ListAsync(Expression<Func<Tentity,bool>> expression)
+        public async Task<List<Tentity>> ListAsync()
+        {
+            return await _dbSet.ToListAsync();
+        }
+
+        public async Task<List<Tentity>> ListAsync(Expression<Func<Tentity, bool>> expression)
         {
             return await _dbSet.Where(expression).ToListAsync();
         }
 
-        //TODO
+        public async Task<Tentity> GetAsync(Expression<Func<Tentity, bool>> expression)
+        {
+            var entity = await _dbSet.FirstOrDefaultAsync(expression);
 
-        //public async Task<Tentity> GetAsync(Expression<Func<Tentity,bool>>expression,int id)
-        //{
-        //    var entity= await _dbSet.FirstOrDefaultAsync(expression);
-        //    if(null!=entity)
-        //        return entity;
-        //}
+            return entity ;
+        }
 
     }
 }

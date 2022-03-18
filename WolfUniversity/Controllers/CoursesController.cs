@@ -1,81 +1,65 @@
-﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using WolfUniversity.Commands;
 using WolfUniversity.Domain;
-using WolfUniversity.Infrastructure;
-using WolfUniversity.Models;
+using WolfUniversity.Queries;
 
 namespace WolfUniversity.Controllers
 {
     public class CoursesController : Controller
     {
-        private readonly WolfUniversityDBContext _context;
-
-        public CoursesController(WolfUniversityDBContext context)
+        private readonly IMediator _mediator;
+        public CoursesController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
-
-        // GET: Courses
+        // GET: CoursesController
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Courses.ToListAsync());
+            var query = new GetCoursesQuery();
+            var result = await _mediator.Send(query);
+            return View(result);
         }
 
-        // GET: Courses/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: CoursesController/Details/5
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.CourseId == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
+            var query = new GetCourseByIdQuery(id);
+            var result = await _mediator.Send(query);
+            return View(result);
         }
 
-        // GET: Courses/Create
+        // GET: CoursesController/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: CoursesController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,CourseCode,Name,Nqflevel,Description,CourseDuration")] Course course)
+        public async Task<IActionResult> Create([Bind("CourseId,CourseCode,Name,Nqflevel,Description,CourseDuration,IsActive,LastModifiedBy,LastModifiedDate")] Course course)
         {
+            var query = new AddCourseCommand(course);
             if (ModelState.IsValid)
             {
-                _context.Add(course);
-                await _context.SaveChangesAsync();
+                await _mediator.Send(query);
                 return RedirectToAction(nameof(Index));
             }
             return View(course);
+
         }
 
-        // GET: Courses/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: CoursesController/Edit/5
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            var query = new GetCourseByIdQuery((int)id);
+            var course =  _mediator.Send(query);
 
-            var course = await _context.Courses.FindAsync(id);
             if (course == null)
             {
                 return NotFound();
@@ -83,12 +67,10 @@ namespace WolfUniversity.Controllers
             return View(course);
         }
 
-        // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: CoursesController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,CourseCode,Name,Nqflevel,Description,CourseDuration")] Course course)
+        public async Task<IActionResult> Edit(int id,[Bind("CourseId,CourseCode,Name,Nqflevel,Description,CourseDuration,IsActive,LastModifiedBy,LastModifiedDate")] Course course)
         {
             if (id != course.CourseId)
             {
@@ -99,57 +81,45 @@ namespace WolfUniversity.Controllers
             {
                 try
                 {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
+                    var query = new EditCourseCommand(course);
+                    await _mediator.Send(query);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!CourseExists(course.CourseId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    //TODO write an exception
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View(course);
         }
 
-        // GET: Courses/Delete/5
+        // GET: CoursesController/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) {  return NotFound();}
 
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.CourseId == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
+            var query = new GetCourseByIdQuery((int)id);
+            var course = await _mediator.Send(query);
+
+            if (course == null) { return NotFound(); }
 
             return View(course);
         }
 
-        // POST: Courses/Delete/5
+
+        // POST: CoursesController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var course = await _context.Courses.FindAsync(id);
-            _context.Courses.Remove(course);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var getGuery = new GetCourseByIdQuery(id);
+            var course = await _mediator.Send(getGuery);
 
-        private bool CourseExists(int id)
-        {
-            return _context.Courses.Any(e => e.CourseId == id);
+            var DeleteCommand = new RemoveCourseCommand();
+            await _mediator.Send(DeleteCommand);
+            
+            return RedirectToAction(nameof(Index));
         }
     }
 }
