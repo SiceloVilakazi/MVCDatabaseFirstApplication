@@ -17,7 +17,7 @@ namespace WolfUniversity.Domain
       
         public async Task<Enrollment> AddEnrollmentAsync(Enrollment model)
         {
-          var enrollment = await _enrollmentRepository.AddAsync(model);
+            var enrollment = await _enrollmentRepository.AddAsync(model);
             await UnitOfWork.CommitAsync();
             return enrollment;
         }
@@ -30,14 +30,14 @@ namespace WolfUniversity.Domain
         }
         public async Task<Enrollment> GetEnrollmentByStudentNumberAsync(string studentNumber)
         {
-            var student = _studentRepository.GetAsync(c => c.StudentNumber == studentNumber).Result;
-            var enrollment = await _enrollmentRepository.GetAsync(e => e.StudentId == student.StudentId);
+            var student = await _studentRepository.GetAsync(c => c.StudentNumber == studentNumber);
+            var enrollment =  _enrollmentRepository.GetAsync(e => e.StudentId == student.StudentId).Result;
             return enrollment;
         }
         public async Task<List<Enrollment>> GetAllEnrollmentsByCourseAsync(string courseName)
         {
-            var course = _courseRepository.GetAsync(c=>c.Name == courseName).Result;
-            var enrollments = await _enrollmentRepository.ListAsync(e => e.CourseId == course.CourseId);
+            var course = await _courseRepository.GetAsync(c=>c.Name == courseName);
+            var enrollments =  _enrollmentRepository.ListAsync(e => e.CourseId == course.CourseId).Result;
             return enrollments;
         }
     }  

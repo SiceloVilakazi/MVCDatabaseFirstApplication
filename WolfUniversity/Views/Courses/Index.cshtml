@@ -4,13 +4,16 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Index</h1>
+<br />
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a type="button" class="btn btn-outline-primary" asp-action="Create">Create New</a>
 </p>
-<table class="table">
+
+<div class="card border-secondary mb-3" >
+  <div class="card-header">Registered Courses</div>
+  <div class="card-body">
+    <table class="table">
     <thead>
         <tr>
             <th>
@@ -58,3 +61,5 @@
 }
     </tbody>
 </table>
+  </div>
+</div>
